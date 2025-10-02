@@ -32,6 +32,7 @@ internal partial class MainViewModel : ObservableObject
             )
             {
                 response.EnsureSuccessStatusCode();
+                Message = string.Empty;
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 {
                     byte[] buffer = new byte[1024];
