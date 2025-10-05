@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections.ObjectModel;
+using System.Text;
+using AIAssistant.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -16,22 +18,30 @@ internal partial class MainViewModel : ObservableObject
     string? _message;
 
     [ObservableProperty]
-    string? _answer;
+    ObservableCollection<QuestionAndAnswer> _chats = new ObservableCollection<QuestionAndAnswer>();
 
     [RelayCommand]
     async Task SendMessageAsync()
     {
-        Answer = string.Empty;
+        if (string.IsNullOrEmpty(Message))
+            return;
+        Chats.Add(new QuestionAndAnswer { Content = Message, IsQuestion = true });
         try
         {
             using (
                 var response = await _httpClient.GetAsync(
-                    $"question?q='{Uri.EscapeDataString(Message ?? "")}'",
+                    $"question?q='{Uri.EscapeDataString(Message)}'",
                     HttpCompletionOption.ResponseHeadersRead
                 )
             )
             {
                 response.EnsureSuccessStatusCode();
+                var newAnswer = new QuestionAndAnswer
+                {
+                    Content = string.Empty,
+                    IsQuestion = false
+                };
+                Chats.Add(newAnswer);
                 Message = string.Empty;
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 {
@@ -39,15 +49,12 @@ internal partial class MainViewModel : ObservableObject
                     int bytesRead = 0;
                     while ((bytesRead = await stream.ReadAsync(buffer, 0, 1024)) > 0)
                     {
-                        Answer += Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        newAnswer.Content += Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     }
                 }
             }
         }
-        catch (Exception ex)
-        {
-            Answer = ex.Message;
-        }
+        catch (Exception ex) { }
     }
 
     bool CanSendMessage() => !string.IsNullOrEmpty(Message);

@@ -3,19 +3,43 @@
   x:Class="AIAssistant.MainPage"
   xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+  xmlns:conv="clr-namespace:AIAssistant.Converters"
   xmlns:idk="clr-namespace:Indiko.Maui.Controls.Markdown;assembly=Indiko.Maui.Controls.Markdown"
+  xmlns:models="clr-namespace:AIAssistant.Models"
   xmlns:vm="clr-namespace:AIAssistant">
   <ContentPage.BindingContext>
     <vm:MainViewModel />
   </ContentPage.BindingContext>
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <conv:BoolToLayoutConverter x:Key="BoolToLayoutConverter" />
+    </ResourceDictionary>
+  </ContentPage.Resources>
   <Grid
     Padding="10"
     ColumnDefinitions="*,70"
     RowDefinitions="*,40"
     RowSpacing="20">
-    <ScrollView Grid.ColumnSpan="2" VerticalOptions="End">
+    <ListView Grid.ColumnSpan="2" ItemsSource="{Binding Chats}">
+      <ListView.ItemTemplate>
+        <DataTemplate x:DataType="models:QuestionAndAnswer">
+          <ViewCell>
+            <StackLayout>
+              <Border
+                Padding="5"
+                BackgroundColor="Transparent"
+                StrokeShape="RoundRectangle 5,5,5,5"
+                StrokeThickness="0">
+                <idk:MarkdownView HorizontalOptions="{Binding IsQuestion, Converter={StaticResource BoolToLayoutConverter}}" MarkdownText="{Binding Content}" />
+              </Border>
+            </StackLayout>
+          </ViewCell>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+    <!--<ScrollView Grid.ColumnSpan="2" VerticalOptions="End">
       <idk:MarkdownView MarkdownText="{Binding Answer}" />
-    </ScrollView>
+    </ScrollView>-->
     <Entry
       Grid.Row="1"
       ReturnCommand="{Binding SendMessageCommand}"
