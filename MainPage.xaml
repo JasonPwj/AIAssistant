@@ -13,6 +13,7 @@
   <ContentPage.Resources>
     <ResourceDictionary>
       <conv:BoolToLayoutConverter x:Key="BoolToLayoutConverter" />
+      <conv:BoolToBackgroundColorConverter x:Key="BoolToBackgroundColorConverter" />
     </ResourceDictionary>
   </ContentPage.Resources>
   <Grid
@@ -20,28 +21,28 @@
     ColumnDefinitions="*,70"
     RowDefinitions="*,40"
     RowSpacing="20">
-    <ListView Grid.ColumnSpan="2" ItemsSource="{Binding Chats}">
-      <ListView.ItemTemplate>
+    <CollectionView
+      Grid.ColumnSpan="2"
+      ItemsLayout="VerticalList"
+      ItemsSource="{Binding Chats}">
+      <CollectionView.ItemTemplate>
         <DataTemplate x:DataType="models:QuestionAndAnswer">
-          <ViewCell>
-            <StackLayout>
-              <Border
-                Padding="5"
-                BackgroundColor="Transparent"
-                StrokeShape="RoundRectangle 5,5,5,5"
-                StrokeThickness="0">
-                <idk:MarkdownView HorizontalOptions="{Binding IsQuestion, Converter={StaticResource BoolToLayoutConverter}}" MarkdownText="{Binding Content}" />
-              </Border>
-            </StackLayout>
-          </ViewCell>
+          <Border StrokeThickness="0">
+            <Border
+              Padding="5"
+              BackgroundColor="{Binding IsQuestion, Converter={StaticResource BoolToBackgroundColorConverter}}"
+              HorizontalOptions="{Binding IsQuestion, Converter={StaticResource BoolToLayoutConverter}}"
+              StrokeShape="RoundRectangle 5,5,5,5"
+              StrokeThickness="0">
+              <idk:MarkdownView MarkdownText="{Binding Content}" WidthRequest="NaN" />
+            </Border>
+          </Border>
         </DataTemplate>
-      </ListView.ItemTemplate>
-    </ListView>
-    <!--<ScrollView Grid.ColumnSpan="2" VerticalOptions="End">
-      <idk:MarkdownView MarkdownText="{Binding Answer}" />
-    </ScrollView>-->
+      </CollectionView.ItemTemplate>
+    </CollectionView>
     <Entry
       Grid.Row="1"
+      Margin="0,0,10,0"
       ReturnCommand="{Binding SendMessageCommand}"
       Text="{Binding Message}" />
     <Button

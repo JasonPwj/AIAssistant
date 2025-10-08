@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Text;
 using AIAssistant.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,7 +11,8 @@ internal partial class MainViewModel : ObservableObject
 {
     HttpClient _httpClient = new HttpClient()
     {
-        BaseAddress = new Uri("https://localhost:7109"),
+        //BaseAddress = new Uri(Preferences.Get("ServerAddr", "http://192.168.0.97:5043")),
+        BaseAddress = new Uri("http://192.168.0.97:5043"),
         Timeout = TimeSpan.FromSeconds(30)
     };
 
@@ -25,6 +27,10 @@ internal partial class MainViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(Message))
             return;
+        if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+        {
+            return;
+        }
         Chats.Add(new QuestionAndAnswer { Content = Message, IsQuestion = true });
         try
         {
@@ -54,7 +60,10 @@ internal partial class MainViewModel : ObservableObject
                 }
             }
         }
-        catch (Exception ex) { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+        }
     }
 
     bool CanSendMessage() => !string.IsNullOrEmpty(Message);
